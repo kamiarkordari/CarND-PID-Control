@@ -9,9 +9,9 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
   /**
    * Initialize PID coefficients (and errors)
    */
-   Kp = Kp_;
-   Ki = Ki_i;
-   Kd = Kd_;
+   this->Kp = Kp_;
+   this->Ki = Ki_i;
+   this->Kd = Kd_;
 
    p_error = 0;
    i_error = 0;
@@ -23,10 +23,9 @@ void PID::UpdateError(double cte) {
   /**
    * Update PID errors based on cte
    */
-   p_error = cte - p_error;
-   i_error = cte;
-   d_error += cte;
-
+   d_error = cte - p_error;
+   p_error = cte;
+   i_error += cte;
 }
 
 double PID::TotalError() {
@@ -44,4 +43,11 @@ double PID::TotalError() {
   }
 
   return output;
+}
+
+double PID::Twiddle(double cte) {
+  /**
+   * Tune PID paramters to minimze the error
+   */
+
 }

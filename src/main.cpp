@@ -30,12 +30,23 @@ string hasData(string s) {
   return "";
 }
 
+//int main(int argc, char *argv[]) {
 int main() {
   uWS::Hub h;
 
   // Initialize the pid variable
   PID pid;
-  PID.Init(0.2, 0.0001, 3.0);
+
+  // PID parameters
+//  double init_Kp = atof(argv[1]); //0.2;
+//  double init_Ki = atof(argv[2]); //0.0001;
+//  double init_Kd = atof(argv[3]); //3.0;
+
+  double init_Kp = 0.2;
+  double init_Ki = 0.0001;
+  double init_Kd = 3.0;
+
+  pid.Init(init_Kp, init_Ki, init_Kd);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -55,12 +66,12 @@ int main() {
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
-          double steer_value;
 
+          // Calculate PID error
           pid.UpdateError(cte);
 
-          // Calculate steering value here. The steering value is in [-1, 1]
-          double steerAngle = pid.TotalError();
+          // Calculate steering which is the control input from PID error. The steering value is in [-1, 1]
+          double steer_value = pid.TotalError();
 
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value

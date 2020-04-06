@@ -3,7 +3,7 @@
 ### Overview
 In this project we build a PID controller and tune the PID hyperparameters. Then we test the solution in the simulator. The goal is to drive the vehicle succesfully around the track. The speed limit is 100 mph.
 
-The simulator sends cross-track error, speed and angle to the PID controller using WebSocket and it receives the steering angle that is a normalized value between -1 and 1 and the throttle to drive the car. The PID uses the uWebSockets WebSocket implementation.
+The simulator sends cross-track error, speed and angle to the PID controller using WebSocket and it receives the steering angle that is a normalized value between -1 and 1 and the throttle to drive the car.
 
 ### Background
 

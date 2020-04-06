@@ -31,6 +31,12 @@ class PID {
    */
   double TotalError();
 
+  /**
+   * Tune PID paramters
+   * @param cte The current cross track error
+   */
+  void Twiddle(double cte);
+
  private:
   /**
    * PID Errors
@@ -41,7 +47,7 @@ class PID {
 
   /**
    * PID Coefficients
-   */ 
+   */
   double Kp;
   double Ki;
   double Kd;
