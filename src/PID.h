@@ -1,6 +1,9 @@
 #ifndef PID_H
 #define PID_H
 
+#include <string>
+using namespace std;
+
 class PID {
  public:
   /**
@@ -37,7 +40,10 @@ class PID {
    */
   void Twiddle(double cte);
 
- private:
+  void TwiddleError(double cte);
+
+
+// private:
   /**
    * PID Errors
    */
@@ -51,6 +57,20 @@ class PID {
   double Kp;
   double Ki;
   double Kd;
+
+  /**
+   * Twiddle Paramters
+   */
+  double dp[3];
+  float tol;
+  double best_error;
+  string state;
+  double error;
+  const int n = 100;
+  int counter;
+  int parameter_tuning_index;
+  bool error_accumulation_started;
+  bool error_accumulation_stopped;
 };
 
 #endif  // PID_H

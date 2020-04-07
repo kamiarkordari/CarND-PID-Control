@@ -67,6 +67,12 @@ int main() {
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
 
+          //
+          pid.Twiddle(cte);
+
+          //
+          pid.TwiddleError(cte);
+
           // Calculate PID error
           pid.UpdateError(cte);
 
@@ -76,6 +82,7 @@ int main() {
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value
                     << std::endl;
+          std::cout << "Kp: " << pid.Kp << " - Ki: " << pid.Ki << " - Kd: " << pid.Kd << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
