@@ -84,6 +84,12 @@ int main() {
                     << std::endl;
           std::cout << "Kp: " << pid.Kp << " - Ki: " << pid.Ki << " - Kd: " << pid.Kd << std::endl;
 
+          std::cout << "Counter: " << pid.counter << " - error_accumulation_started: " << pid.error_accumulation_started << " - parameter_tuning_index: " << pid.parameter_tuning_index << std::endl;
+          std::cout << "State: " << pid.state << std::endl;
+          std::cout << "dp[0]: " << pid.dp[0] << "- dp[1]: " << pid.dp[1] << "- dp[2]: " << pid.dp[2] << std::endl;
+          std::cout << "initial_best_error_recorded: " << pid.initial_best_error_recorded << " - best_error: " << pid.best_error<< " - error: " << pid.error << std::endl;
+          std::cout << "--------------";
+
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = 0.3;

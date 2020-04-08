@@ -71,6 +71,7 @@ class PID {
   int parameter_tuning_index;
   bool error_accumulation_started;
   bool error_accumulation_stopped;
+  bool initial_best_error_recorded; 
 };
 
 #endif  // PID_H

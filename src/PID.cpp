@@ -18,12 +18,15 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
    d_error = 0;
 
    tol = 0.1;
-   dp[0] = 1;
-   dp[1] = 1;
-   dp[2] = 1;
+   dp[0] = 0.1;
+   dp[1] = 0.1;
+   dp[2] = 0.1;
 
    parameter_tuning_index = 0;
    error_accumulation_started = false;
+   state = "0";
+   initial_best_error_recorded = false;
+   counter = 0;
 }
 
 void PID::UpdateError(double cte) {
@@ -61,16 +64,21 @@ void PID::Twiddle(double cte) {
    P[1] = this->Ki;
    P[2] = this->Kd;
 
+   if (!initial_best_error_recorded) {
+     return;
+   }
+
    if (dp[0]+dp[1]+dp[2] > tol) {
      if (state == "0"){
        P[parameter_tuning_index] += dp[parameter_tuning_index];
-       Kp = P[0];
-       Ki = P[1];
-       Kd = P[2];
+       this->Kp = P[0];
+       this->Ki = P[1];
+       this->Kd = P[2];
        state = "1";
        counter = 0;
        error = 0;
        error_accumulation_started = true;
+       error_accumulation_stopped = false;
        return;
      }
      if (state == "1" && error_accumulation_stopped){
@@ -86,6 +94,7 @@ void PID::Twiddle(double cte) {
          counter = 0;
          error = 0;
          error_accumulation_started = true;
+         error_accumulation_stopped = false;
          return;
        }
      }
@@ -102,6 +111,8 @@ void PID::Twiddle(double cte) {
          dp[parameter_tuning_index] *= 0.9;
        }
        state = "0";
+       parameter_tuning_index++;
+       parameter_tuning_index = parameter_tuning_index % 3;
      }
    }
 }
@@ -109,9 +120,18 @@ void PID::Twiddle(double cte) {
 void PID::TwiddleError(double cte) {
   if (counter >= n && error_accumulation_started) {
     error += cte*cte;
+    if (counter == 2*n) {
+      error_accumulation_started = false;
+      error_accumulation_stopped = true;
+      counter = 0;
+      if (!initial_best_error_recorded) {
+        best_error = error;
+        initial_best_error_recorded = true;
+      }
+    }
   }
-  if (counter == 2*n && error_accumulation_started) {
-    error_accumulation_started = false;
-    error_accumulation_stopped = true;
+  if (!initial_best_error_recorded) {
+    error_accumulation_started = true;
   }
+  counter++;
 }
