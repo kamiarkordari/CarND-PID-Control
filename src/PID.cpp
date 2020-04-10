@@ -17,16 +17,16 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
    i_error = 0;
    d_error = 0;
 
-   tol = 0.1;
-   dp[0] = 0.1;
-   dp[1] = 0.1;
-   dp[2] = 0.1;
+   tol = 0.2;
+   dp[0] = .1;
+   dp[1] = .0001;
+   dp[2] = 1;
 
    parameter_tuning_index = 0;
-   error_accumulation_started = false;
-   state = "0";
-   initial_best_error_recorded = false;
-   counter = 0;
+   //error_accumulation_started = false;
+   //state = "0";
+   //initial_best_error_recorded = false;
+   counter = -50;
 }
 
 void PID::UpdateError(double cte) {
@@ -55,67 +55,6 @@ double PID::TotalError() {
   return output;
 }
 
-void PID::Twiddle(double cte) {
-  /**
-   * Tune PID paramters to minimze the error
-   */
-   int P[3];
-   P[0] = this->Kp;
-   P[1] = this->Ki;
-   P[2] = this->Kd;
-
-   if (!initial_best_error_recorded) {
-     return;
-   }
-
-   if (dp[0]+dp[1]+dp[2] > tol) {
-     if (state == "0"){
-       P[parameter_tuning_index] += dp[parameter_tuning_index];
-       this->Kp = P[0];
-       this->Ki = P[1];
-       this->Kd = P[2];
-       state = "1";
-       counter = 0;
-       error = 0;
-       error_accumulation_started = true;
-       error_accumulation_stopped = false;
-       return;
-     }
-     if (state == "1" && error_accumulation_stopped){
-       if (error < best_error) {
-         best_error = error;
-         dp[parameter_tuning_index] *= 1.1;
-       } else {
-         P[parameter_tuning_index] -= 2*dp[parameter_tuning_index];
-         this->Kp = P[0];
-         this->Ki = P[1];
-         this->Kd = P[2];
-         state = "2";
-         counter = 0;
-         error = 0;
-         error_accumulation_started = true;
-         error_accumulation_stopped = false;
-         return;
-       }
-     }
-
-     if (state == "2" && error_accumulation_stopped){
-       if (error < best_error) {
-         best_error = error;
-         dp[parameter_tuning_index] *= 1.1;
-       } else {
-         P[parameter_tuning_index] += dp[parameter_tuning_index];
-         this->Kp = P[0];
-         this->Ki = P[1];
-         this->Kd = P[2];
-         dp[parameter_tuning_index] *= 0.9;
-       }
-       state = "0";
-       parameter_tuning_index++;
-       parameter_tuning_index = parameter_tuning_index % 3;
-     }
-   }
-}
 
 void PID::TwiddleError(double cte) {
   if (counter >= n && error_accumulation_started) {
@@ -134,4 +73,73 @@ void PID::TwiddleError(double cte) {
     error_accumulation_started = true;
   }
   counter++;
+}
+
+
+
+
+void PID::Twiddle(double cte) {
+  /**
+   * Tune PID paramters to minimze the error
+   */
+   double P[3];
+   P[0] = this->Kp;
+   P[1] = this->Ki;
+   P[2] = this->Kd;
+
+   error += cte*cte;
+
+   //if (counter < -100) {
+   //  error = 0;
+   //}
+   if (counter == 0) {
+     best_error = error/n;
+     if (dp[0]+dp[1]+dp[2] > tol) {
+       P[parameter_tuning_index] += dp[parameter_tuning_index];
+       this->Kp = P[0];
+       this->Ki = P[1];
+       this->Kd = P[2];
+       error = 0;
+     }
+   }
+   //else if (counter > 0 && counter < 100) {
+   //  error = 0;
+   //}
+   else if (counter == n) {
+     error /= n;
+     if (error < best_error) {
+       best_error = error;
+       error = 0;
+       dp[parameter_tuning_index] *= 1.1;
+     } else {
+       P[parameter_tuning_index] -= 2*dp[parameter_tuning_index];
+       this->Kp = P[0];
+       this->Ki = P[1];
+       this->Kd = P[2];
+       error = 0;
+     }
+   }
+//   else if (counter > 200 && counter < 300) {
+//     error = 0;
+//   }
+   else if (counter == 2*n) {
+     error /= n;
+     counter = -1;
+
+     if (error < best_error) {
+       best_error = error;
+       error = 0;
+       dp[parameter_tuning_index] *= 1.1;
+     } else {
+       P[parameter_tuning_index] += dp[parameter_tuning_index];
+       dp[parameter_tuning_index] *= 0.9;
+       this->Kp = P[0];
+       this->Ki = P[1];
+       this->Kd = P[2];
+       parameter_tuning_index++;
+       parameter_tuning_index = parameter_tuning_index % 3;
+       error = 0;
+     }
+   }
+   counter++;
 }
