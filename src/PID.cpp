@@ -17,16 +17,13 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
    i_error = 0;
    d_error = 0;
 
-   tol = 0.2;
-   dp[0] = .1;
-   dp[1] = .0001;
+   tol = 0.1;
+   dp[0] = 0.1;
+   dp[1] = 0.0001;
    dp[2] = 1;
 
    parameter_tuning_index = 0;
-   //error_accumulation_started = false;
-   //state = "0";
-   //initial_best_error_recorded = false;
-   counter = -50;
+   counter = -wait_cycles;
 }
 
 void PID::UpdateError(double cte) {
@@ -56,28 +53,6 @@ double PID::TotalError() {
 }
 
 
-void PID::TwiddleError(double cte) {
-  if (counter >= n && error_accumulation_started) {
-    error += cte*cte;
-    if (counter == 2*n) {
-      error_accumulation_started = false;
-      error_accumulation_stopped = true;
-      counter = 0;
-      if (!initial_best_error_recorded) {
-        best_error = error;
-        initial_best_error_recorded = true;
-      }
-    }
-  }
-  if (!initial_best_error_recorded) {
-    error_accumulation_started = true;
-  }
-  counter++;
-}
-
-
-
-
 void PID::Twiddle(double cte) {
   /**
    * Tune PID paramters to minimze the error
@@ -89,11 +64,10 @@ void PID::Twiddle(double cte) {
 
    error += cte*cte;
 
-   //if (counter < -100) {
-   //  error = 0;
-   //}
-   if (counter == 0) {
-     best_error = error/n;
+   if (counter == -1) {
+     best_error = error/wait_cycles;
+   }
+   else if (counter == 0) {
      if (dp[0]+dp[1]+dp[2] > tol) {
        P[parameter_tuning_index] += dp[parameter_tuning_index];
        this->Kp = P[0];
@@ -102,15 +76,15 @@ void PID::Twiddle(double cte) {
        error = 0;
      }
    }
-   //else if (counter > 0 && counter < 100) {
-   //  error = 0;
-   //}
-   else if (counter == n) {
-     error /= n;
+   else if (counter == wait_cycles) {
+     error /= wait_cycles;
      if (error < best_error) {
        best_error = error;
        error = 0;
        dp[parameter_tuning_index] *= 1.1;
+       counter = -1;
+       parameter_tuning_index++;
+       parameter_tuning_index = parameter_tuning_index % 3;
      } else {
        P[parameter_tuning_index] -= 2*dp[parameter_tuning_index];
        this->Kp = P[0];
@@ -119,10 +93,7 @@ void PID::Twiddle(double cte) {
        error = 0;
      }
    }
-//   else if (counter > 200 && counter < 300) {
-//     error = 0;
-//   }
-   else if (counter == 2*n) {
+   else if (counter == 2*wait_cycles) {
      error /= n;
      counter = -1;
 

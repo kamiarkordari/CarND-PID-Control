@@ -43,8 +43,8 @@ int main() {
 //  double init_Kd = 3.0;
 
   double init_Kp = 0.1; // 0.1
-  double init_Ki = 0.0001;
-  double init_Kd = 3; //5
+  double init_Ki = 0.0001; //0.0001
+  double init_Kd = 1; //3
 
   pid.Init(init_Kp, init_Ki, init_Kd);
 
@@ -70,9 +70,6 @@ int main() {
           //
           pid.Twiddle(cte);
 
-          //
-          //pid.TwiddleError(cte);
-
           // Calculate PID error
           pid.UpdateError(cte);
 
@@ -81,12 +78,12 @@ int main() {
 
           // DEBUG
           std::cout << "--------------" << std::endl;
-          std::cout << "Counter: " << pid.counter << " | error_accumulation_started: " << pid.error_accumulation_started << " | parameter_tuning_index: " << pid.parameter_tuning_index << std::endl;
+          std::cout << "Counter: " << pid.counter << " | parameter_tuning_index: " << pid.parameter_tuning_index << std::endl;
           std::cout << "Kp: " << pid.Kp << " | Ki: " << pid.Ki << " | Kd: " << pid.Kd << std::endl;
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value
                     << std::endl;
           std::cout << "dp[0]: " << pid.dp[0] << " | dp[1]: " << pid.dp[1] << " | dp[2]: " << pid.dp[2] << std::endl;
-          std::cout << "initial_best_error_recorded: " << pid.initial_best_error_recorded << " | best_error: " << pid.best_error<< " | error: " << pid.error << std::endl;
+          std::cout << "best_error: " << pid.best_error<< " | error: " << pid.error << std::endl;
           std::cout << "--------------" << std::endl;
 
           json msgJson;

@@ -40,8 +40,6 @@ class PID {
    */
   void Twiddle(double cte);
 
-  void TwiddleError(double cte);
-
 
 // private:
   /**
@@ -61,17 +59,13 @@ class PID {
   /**
    * Twiddle Paramters
    */
+  const int wait_cycles = 1000;
   double dp[3];
   float tol;
   double best_error;
-  string state;
   double error;
-  const int n = 25;
   int counter;
   int parameter_tuning_index;
-  bool error_accumulation_started;
-  bool error_accumulation_stopped;
-  bool initial_best_error_recorded;
 };
 
 #endif  // PID_H
