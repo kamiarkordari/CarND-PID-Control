@@ -1,25 +1,45 @@
- In this project I implemented a PID controller in C++ to maneuver an autonomous vehicle around a track.
+[result]: ./images/result.gif "Short Gif"
+![result]
 
-### Goal
-The goal is to build a PID controller and tune its parameters. We test the solution in a simulator. The goal is to drive the vehicle successfully around the track.
-
-The simulator sends cross-track error, speed and angle to the PID controller using WebSocket and it receives back the steering angle that is a normalized value between -1 and 1 and the throttle to drive the car.
+In this project I implemented a PID controller in C++ to maneuver an autonomous vehicle around a track and used Twiddle algorithm to automatically adjust PID parameters on the fly.
 
 ### PID Controller
+##### Goal
+The goal is to build a PID controller and tune its parameters for an autonomous vehicle as it is driven around a track in the simulator.
+
 ##### Simulator
-The simulator provides the cross track error (CTE) and the velocity (mph) and the controller uses those information to compute the appropriate steering angle.
+The simulator sends cross-track error (CTE), speed, and angle to the PID controller using WebSocket. The controller computes the appropriate steering angle (that is a normalized value between -1 and 1) and the throttle to drive the car back to the simulator.
 
 The Simulator can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases).
 
 
-##### Twiddle Algorithm
-I applied the twiddle algorithm to tune the parameters automatically. The main concept is to methodically vary each of the parameters and measure the resulting difference in error to determine if increasing or decreasing the value was improving the overall error.
-- I set the parameter deltas to initialize to 100% of the initial values.
-- With trail and error I found a set of parameters that create a reasonable response. I used those values as the initial PID parameters: `Kp = 0.1, Ki = 0.0001, Kd = 1`
-- Between each twiddle parameter update the algorithm waits 1000 cycles to measure average error.
-- Twiddle incorporates a tolerance value 0.1 as the parameters are tuned. I used 0.2.
+##### The Effect of the P, I, D Components
+- **The proportional** portion of the controller results in a steering that is proportional to the distance the car is off the center of the lane. If used alone, the car is pushed to the center and quickly overshoots the middle of the lane and may go out of the road. Higher values of the coefficient tend to increase the oscillation of the car. Lower values of the coefficient result in increased time to correct the error.
 
-Pseudo code for implementing the Twiddle algorithm is as follows:
+- **The differential** portion counteract the overshoot caused by the proportional portion by generating a smooth approach to the center of the lane. Higher values of the coefficient (higher than 10) tend to result in oscillation of he car around the center line.
+
+- **The integral** portion helps to eliminates a non-zero permanent error in the output. Higher values of the coefficient (higher than 0.01) tend to overshoot the reference.
+
+
+##### Parameter Selection
+I chose the parameters manually to make sure the car can drive without going off the track and then I used twiddle algorithm to fine tune those parameters.
+
+Here is my process to manually find the initial PID parameters:
+- I first added the proportional component while keeping other parameters zero. I chose `Kp = 0.1` that resulted in the car following the road while not overshooting out of it.
+- Then I added the differential parameter to try to overcome the overshooting. `Kd = 1` worked fine.
+- The integral part was not improving the error in any significant way. I chose `Ki = 0.0001` for this parameter.
+
+[1, 0, 0][link](https://www.youtube.com/watch?v=NtbGrdZbvcM)
+[0.1, 0, 0][link](https://www.youtube.com/watch?v=WA-sdZhimBs)
+[0.1, 0, 1][link](https://www.youtube.com/watch?v=4uhZ9vBzcuE)
+[0.1, 0, 10][link](https://www.youtube.com/watch?v=utDTVqofqiA)
+
+
+
+##### Twiddle Algorithm
+I applied the twiddle algorithm to tune the PID parameters automatically. The main concept of twiddle is to methodically vary parameters one at a time and measure the resulting difference in error to determine if increasing or decreasing the value was improving the overall error.
+
+The pseudo code for implementing the Twiddle algorithm is as follows:
 
 ```Python
 function(tol=0.2) {
@@ -48,18 +68,21 @@ function(tol=0.2) {
 }
 ```
 
-### Reflection
-**What is the effect each of the P, I, D components?**
+- I set the parameter deltas to initialize to 100% of the initial values.
+- With trail and error I found a set of parameters that create a reasonable response. I used those values as the initial PID parameters: `Kp = 0.1, Ki = 0.0001, Kd = 1`
+- Between each twiddle parameter update the algorithm waits 1000 cycles to measure average error.
+- Twiddle incorporates a tolerance value of 0.1 as the parameters are tuned.
 
-- The proportional portion of the controller steers the car toward the center line. If used alone, the car quickly overshoots the central line and goes out of the road. Higher values of the coefficient tend to increase the weaving of the car. Lower values of the coefficient (e.g. 0.0) tend to increase the time to adjust and hardly change the steering direction.
+After going one time around the track the parameters were adjusted to `Pk = 0.2, Pi = 0.0001, and Pd = 2`.
 
-- The differential portion counteract the overshoot caused by the proportional portion by generating a smooth approach to the center line. Higher values of the coefficient (higher than 10) tend to decrease the smoothness of the steering.
+### Result
+See a video of the final result by clicking on the image below.
 
-- The integral portion helps to eliminates a non-zero permanent bias/error in the output. Higher values of the coefficient (higher than 0.01) tend to overshoot the reference.
+[image-final-result]: ./media/screen_shot.png "Final Video Screenshot"
 
-**How were the final hyperparameters chosen?**
+[![image-final-result]](https://www.youtube.com/watch?v=Rw_0oPXjEiQ)
 
-The parameters were chosen manually to make sure the car can drive straight.  add the proportional and the car start going on following the road but it starts overshooting go out of it. Then add the differential to try to overcome the overshooting. The integral part only moved the car out of the road; so, it stayed as zero. After the car drove the track without going out of it, the parameters increased to minimize the average cross-track error on a single track lap. The final parameters where [P: 1.5, I: 0.0, D: 2.5].
+
 
 ### Dependencies
 
