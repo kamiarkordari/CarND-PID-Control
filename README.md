@@ -35,7 +35,7 @@ I applied the twiddle algorithm to tune the PID parameters automatically. The ma
 The pseudo code for implementing the Twiddle algorithm is as follows:
 
 ```Python
-function(tol=0.2) {
+function(tol=0.1) {
     p = [0.1, 0.0001, 1]
     dp = [0.1, 0.0001, 1]
     best_error = move_robot()
@@ -71,8 +71,7 @@ After going one time around the track the parameters were adjusted to `Pk = 0.2,
 ### Result
 See a video of the final result by clicking on the image below.
 
-[image-final-result]: ./media/screen_shot.png "Final Video Screenshot"
-
+[image-final-result]: ./media/screen_shot.PNG "Final Video Screenshot"
 [![image-final-result]](https://www.youtube.com/watch?v=Rw_0oPXjEiQ)
 
 
