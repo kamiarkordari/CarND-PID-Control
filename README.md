@@ -25,9 +25,21 @@ The Simulator can be downloaded [here](https://github.com/udacity/self-driving-c
 I chose the parameters manually to make sure the car can drive without going off the track and then I used twiddle algorithm to fine tune those parameters.
 
 Here is my process to manually find the initial PID parameters:
-- I first added the proportional component while keeping other parameters zero. I chose `Kp = 0.1` that resulted in the car following the road while not overshooting out of it. [Here is a video](https://www.youtube.com/watch?v=NtbGrdZbvcM) of the car with these parameters `Kp = 1, Ki = 0, Kd = 0`. And [this is the video](https://www.youtube.com/watch?v=WA-sdZhimBs) of the car with `Kp = 0.1, Ki = 0, Kd = 0`.
-- Then I added the differential parameter to try to overcome the overshooting. `Kd = 1` worked fine. Watch [a video of the PID performance](https://www.youtube.com/watch?v=4uhZ9vBzcuE) with `Kp = 0.1, Ki = 0, Kd = 1`. And this is [a video of the car](https://www.youtube.com/watch?v=utDTVqofqiA) with `Kp = 0.1, Ki = 0, Kd = 10`.  
+- I first added the proportional component while keeping other parameters zero. I chose `Kp = 0.1` that resulted in the car following the road while not overshooting out of it.
+- Then I added the differential parameter to try to overcome the overshooting. `Kd = 1` worked fine.
 - The integral part was not improving the error in any significant way. I chose `Ki = 0.0001` for this parameter.
+
+
+Here are some sample videos to show the effect of the Kp and Kd components on the driving quality.
+
+  Kp  |  Ki  | Kd |  Video Link
+------|----- | ---|-------------
+ 1 | 0  |  0 | [Video Link](https://www.youtube.com/watch?v=NtbGrdZbvcM)
+ 0.1 | 0  |  0 | [Video Link](https://www.youtube.com/watch?v=WA-sdZhimBs)
+ 0.1 | 0  |  1 | [Video Link](https://www.youtube.com/watch?v=4uhZ9vBzcuE)
+ 0.1 | 0  |  10 | [Video Link](https://www.youtube.com/watch?v=utDTVqofqiA)
+
+
 
 ##### Twiddle Algorithm
 I applied the twiddle algorithm to tune the PID parameters automatically. The main concept of twiddle is to methodically vary parameters one at a time and measure the resulting difference in error to determine if increasing or decreasing the value was improving the overall error.
