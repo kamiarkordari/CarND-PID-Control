@@ -59,11 +59,11 @@ class PID {
   /**
    * Twiddle Paramters
    */
-  const int wait_cycles = 1000;
   double dp[3];
   float tol;
   double best_error;
   double error;
+  const int update_cycle = 1000;
   int counter;
   int parameter_tuning_index;
 };

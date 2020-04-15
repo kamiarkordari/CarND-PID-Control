@@ -18,12 +18,12 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
    d_error = 0;
 
    tol = 0.1;
-   dp[0] = 0.1;
-   dp[1] = 0.0001;
-   dp[2] = 1;
+   dp[0] = 0.1; // 0.1
+   dp[1] = 0.0001; //0.001
+   dp[2] = 1; //1
 
    parameter_tuning_index = 0;
-   counter = -wait_cycles;
+   counter = -update_cycle;
 }
 
 void PID::UpdateError(double cte) {
@@ -58,26 +58,32 @@ void PID::Twiddle(double cte) {
    * Tune PID paramters to minimze the error
    */
    double P[3];
-   P[0] = this->Kp;
-   P[1] = this->Ki;
-   P[2] = this->Kd;
+   P[0] = Kp;
+   P[1] = Ki;
+   P[2] = Kd;
 
+  // Accumulate error
    error += cte*cte;
 
+   // Calculation best error. Note: counter starts at -update_cycle
    if (counter == -1) {
-     best_error = error/wait_cycles;
+     best_error = error/update_cycle;
    }
    else if (counter == 0) {
      if (dp[0]+dp[1]+dp[2] > tol) {
+       // Vary one parameter at a time
        P[parameter_tuning_index] += dp[parameter_tuning_index];
-       this->Kp = P[0];
-       this->Ki = P[1];
-       this->Kd = P[2];
+       Kp = P[0];
+       Ki = P[1];
+       Kd = P[2];
        error = 0;
      }
    }
-   else if (counter == wait_cycles) {
-     error /= wait_cycles;
+   else if (counter == update_cycle) {
+     error /= update_cycle;
+     // Measure the resulting error difference in error
+     // - if increasing the value has improved the overall error keep the change
+     // - Increase dp for that parameter to increase the search range for the optimal value
      if (error < best_error) {
        best_error = error;
        error = 0;
@@ -86,27 +92,32 @@ void PID::Twiddle(double cte) {
        parameter_tuning_index++;
        parameter_tuning_index = parameter_tuning_index % 3;
      } else {
+       // If increasing the PID parameter value has inreased the overall error change the paramter in the other direction
        P[parameter_tuning_index] -= 2*dp[parameter_tuning_index];
-       this->Kp = P[0];
-       this->Ki = P[1];
-       this->Kd = P[2];
+       Kp = P[0];
+       Ki = P[1];
+       Kd = P[2];
        error = 0;
      }
    }
-   else if (counter == 2*wait_cycles) {
-     error /= n;
+   else if (counter == 2*update_cycle) {
+     error /= update_cycle;
      counter = -1;
 
+     // If decreasing the PID parameter value has decreased the overall error,
+     // increase dp for that parameter to increase the search range for the optimal value
      if (error < best_error) {
        best_error = error;
        error = 0;
        dp[parameter_tuning_index] *= 1.1;
      } else {
+     // If decreasing the PID parameter value has increased the overall error,
+     // decrease dp for that parameter to decrease the search range for the optimal value
        P[parameter_tuning_index] += dp[parameter_tuning_index];
        dp[parameter_tuning_index] *= 0.9;
-       this->Kp = P[0];
-       this->Ki = P[1];
-       this->Kd = P[2];
+       Kp = P[0];
+       Ki = P[1];
+       Kd = P[2];
        parameter_tuning_index++;
        parameter_tuning_index = parameter_tuning_index % 3;
        error = 0;

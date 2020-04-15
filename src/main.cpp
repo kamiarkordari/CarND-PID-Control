@@ -38,13 +38,9 @@ int main() {
   PID pid;
 
   // PID parameters
-//  double init_Kp = 0.2;
-//  double init_Ki = 0.0001;
-//  double init_Kd = 3.0;
-
-  double init_Kp = 0.1; // 0.1
-  double init_Ki = 0.0001; //0.0001
-  double init_Kd = 1; //3
+  double init_Kp = 0.1;
+  double init_Ki = 0.0001;
+  double init_Kd = 1;
 
   pid.Init(init_Kp, init_Ki, init_Kd);
 
@@ -67,7 +63,7 @@ int main() {
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
 
-          //
+          // Finetune PID parameters
           pid.Twiddle(cte);
 
           // Calculate PID error
@@ -77,7 +73,6 @@ int main() {
           double steer_value = pid.TotalError();
 
           // DEBUG
-          std::cout << "--------------" << std::endl;
           std::cout << "Counter: " << pid.counter << " | parameter_tuning_index: " << pid.parameter_tuning_index << std::endl;
           std::cout << "Kp: " << pid.Kp << " | Ki: " << pid.Ki << " | Kd: " << pid.Kd << std::endl;
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value
