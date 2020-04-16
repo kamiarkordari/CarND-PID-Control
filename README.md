@@ -42,7 +42,11 @@ Here are some sample videos to show the effect of the Kp and Kd components on th
 
 
 ##### Twiddle Algorithm
+Tuning a controller is the adjustment of its control parameters to achieve optimal values (for Kp, Ki, and Kd) for the desired control response. Stability (no unbounded oscillation) is a basic requirement.
+
 I applied the twiddle algorithm to tune the PID parameters automatically. The main concept of twiddle is to methodically vary parameters one at a time and measure the resulting difference in error to determine if increasing or decreasing the value was improving the overall error.
+
+Twiddle is an alternative to gradient descent. An advantage of using twidldle is that it doesn't require calculating of the gradient of high dimensional functions.
 
 The pseudo code for implementing the Twiddle algorithm is as follows:
 
