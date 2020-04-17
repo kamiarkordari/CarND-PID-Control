@@ -14,11 +14,11 @@ The Simulator can be downloaded [here](https://github.com/udacity/self-driving-c
 
 
 ##### The Effect of the P, I, D Components
-- **The proportional** portion of the controller results in a steering that is proportional to the distance the car is off the center of the lane. If used alone, the car is pushed to the center and quickly overshoots the middle of the lane and may go out of the road. Higher values of the coefficient tend to increase the oscillation of the car. Lower values of the coefficient result in increased time to correct the error.
+- **The proportional** portion of the controller results in a steering that is proportional to the distance the car is off the center of the lane. If used alone, the car is pushed to the center and quickly overshoots the middle of the lane. This overshoot may force the car to go out of the road. Higher values of the coefficient may increase the oscillation of the car around the center of the lane. Lower values of the coefficient result in increased time to correct the error. The car may go off the track before the correction shows any impact.
 
-- **The differential** portion counteract the overshoot caused by the proportional portion by generating a smooth approach to the center of the lane. Higher values of the coefficient (higher than 10) tend to result in oscillation of he car around the center line.
+- **The differential** portion counteracts the overshoot caused by the proportional portion by generating a smooth approach to the center of the lane. Higher values of the coefficient (higher than 10) result in oscillation of he car around the center line.
 
-- **The integral** portion helps to eliminates a non-zero permanent error in the output. Higher values of the coefficient (higher than 0.01) tend to overshoot the reference.
+- **The integral** portion helps to eliminates a non-zero permanent and long-term error in the output. Higher values of the coefficient (higher than 0.01) tend to overshoot the reference.
 
 
 ##### Parameter Selection
